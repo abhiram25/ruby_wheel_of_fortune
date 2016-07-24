@@ -105,6 +105,23 @@ def game_over?(game)
   !game.value?("_ ")
 end
 
+def valid_input?(decision)
+  decision == "L" || decision == "G"
+end
+
+def display_player_score(player_score)
+  puts "spinning."
+  puts "spinning.."
+  puts "spinning..."
+  puts "You have $#{player_score}"
+end
+
+def count_blanks(game)
+  game.values.count("_ ")
+end
+
+# computer_pick_letter(blanks, )
+
 loop do
   chars = ["a", "b", "c",
            "d", "e", "f",
@@ -115,7 +132,6 @@ loop do
            "s", "t", "u",
            "v", "w", "x",
            "y", "z"]
-
   game = Hash.new
   player_score = 0
   computer_score = 0
@@ -125,13 +141,14 @@ loop do
   hint = RIDDLES[winning_phrase]
   loop do
     p letter_screen
-    break if game_over?(game)
+    if game_over?(game)
+      prompt "Game Over"
+      puts
+      break
+    end
     display_hint(hint)
     pending_money = spin(spinner_values)
-    puts "spinning."
-    puts "spinning.."
-    puts "spinning..."
-    puts "You have $#{player_score}"
+    display_player_score(player_score)
     if bankrupt?(pending_money)
       puts "Ouch! Looks like you bankrupted"
       player_score = 0
@@ -141,8 +158,16 @@ loop do
       break
     else
       puts "It's $#{pending_money}, type 'L' to pick a letter or 'G' to guess the winning phrase"
+      decision = ''
     end
-    decision = gets.chomp.upcase
+      loop do
+        decision = gets.chomp.upcase
+        if valid_input?(decision)
+          break
+        else
+          puts "Please type 'L' to pick letter or 'G' to guess phrase"
+        end
+      end
     if decision == "L"
       loop do
         puts "Pick a Letter"
@@ -159,6 +184,7 @@ loop do
         else
           letter_screen = update_game(game, winning_phrase, char)
           player_score += pending_money
+          player_score -= 250 if VOWELS.include?(char)
           character_count = letter_count(winning_phrase, char)
           puts character_count
           chars.delete(char)
@@ -174,5 +200,5 @@ loop do
         break
       end
     end
-  end
+   end
 end
