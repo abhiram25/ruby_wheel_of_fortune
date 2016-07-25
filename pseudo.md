@@ -27,6 +27,8 @@
           or else add the difference between computer's money
           and player's money + 100
 6. Computer Turn
+   i. Only if player turn is false or else break
+   ii. computer_turn is true until it picks wrong letter
 7. Computer spins and the value gets stored to a pending_money variable
 	i.  If bankrupt? then computer loses money
 	ii. If Lose_a_turn? then it becomes player's turn
@@ -34,7 +36,7 @@
    a. If there is more than 3 "_ ", then computer picks random letter or else
    	  Computer takes a guess at winning phrase
    	  i. When computer guesses the right phase
-   	  	  Add $1000 if computer has no money
+   	  	  Add $1000 if player has no money
           or else add the difference between player's money
           and computer's money + 100
    b. If the letter picked is correct
@@ -51,7 +53,14 @@
 9. Ask to play again
 
 
-Add input validation if player picks a letter chosen already
+When it is computer's turn, we should break the player's loop
+
+When it is player's turn, we should break computer's loop
+
+Initialize player_turn to be true and break unless computer_turn is false
+Initialize computer_turn to be false and it will break unless computer_turn is true
+
+
 
 Bonus features
 

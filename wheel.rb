@@ -1,12 +1,10 @@
-require 'pry'
-
-system 'clear'
-
 def prompt(message)
   puts "=> #{message}"
 end
 
-VOWELS = ["a", "e", "i", "o", "u"].freeze
+system 'clear'
+
+vowels = ["a", "e", "i", "o", "u"]
 
 spinner_values =
   ["Bankrupt", "Lose a turn",
@@ -22,8 +20,8 @@ RIDDLES = { "dances with wolves" => "Movie",
             "kill two birds with one stone" => "Idiom",
             "ain't nuthin but a g thang" => "Song" }.freeze
 
-def no_vowel_allowed(char, money)
-  VOWELS.include?(char) && money < 250
+def no_vowel_allowed(char, money, vowels)
+  vowels.include?(char) && money < 250
 end
 
 def initialize_game(game, winning_phrase)
@@ -109,18 +107,11 @@ def valid_input?(decision)
   decision == "L" || decision == "G"
 end
 
-def display_player_score(player_score)
+def print_spinning
   puts "spinning."
   puts "spinning.."
   puts "spinning..."
-  puts "You have $#{player_score}"
 end
-
-def count_blanks(game)
-  game.values.count("_ ")
-end
-
-# computer_pick_letter(blanks, )
 
 loop do
   chars = ["a", "b", "c",
@@ -139,27 +130,29 @@ loop do
   winning_phrase = RIDDLES.keys.sample
   letter_screen = initialize_game(game, winning_phrase)
   hint = RIDDLES[winning_phrase]
+
   loop do
-    p letter_screen
-    if game_over?(game)
-      prompt "Game Over"
-      puts
-      break
-    end
-    display_hint(hint)
-    pending_money = spin(spinner_values)
-    display_player_score(player_score)
-    if bankrupt?(pending_money)
-      puts "Ouch! Looks like you bankrupted"
-      player_score = 0
-      break
-    elsif lose_a_turn?(pending_money)
-      puts "Looks like you lost your turn"
-      break
-    else
-      puts "It's $#{pending_money}, type 'L' to pick a letter or 'G' to guess the winning phrase"
-      decision = ''
-    end
+    loop do
+      p letter_screen
+      if game_over?(game)
+        prompt "Game Over"
+        puts
+        break
+      end
+      display_hint(hint)
+      pending_money = spin(spinner_values)
+      puts "You have $#{player_score}"
+      if bankrupt?(pending_money)
+        puts "Ouch! Looks like you bankrupted"
+        player_score = 0
+        break
+      elsif lose_a_turn?(pending_money)
+        puts "Looks like you lost your turn"
+        break
+      else
+        puts "It's $#{pending_money}, type 'L' to pick a letter or 'G' to guess the winning phrase"
+        decision = ''
+      end
       loop do
         decision = gets.chomp.upcase
         if valid_input?(decision)
@@ -168,37 +161,41 @@ loop do
           puts "Please type 'L' to pick letter or 'G' to guess phrase"
         end
       end
-    if decision == "L"
-      loop do
-        puts "Pick a Letter"
-        char = gets.chomp
-        if no_vowel_allowed(char, player_score)
-          puts "You need more than $250 to pick a vowel"
-        elsif not_a_letter(char)
-          puts "Please type a letter a-z"
-        elsif unavailable_letter(chars, char)
-          puts "#{char} is already there"
-        elsif !letter_count(winning_phrase, char)
-          puts "There is no #{char} in this riddle"
-          break
-        else
-          letter_screen = update_game(game, winning_phrase, char)
-          player_score += pending_money
-          player_score -= 250 if VOWELS.include?(char)
-          character_count = letter_count(winning_phrase, char)
-          puts character_count
-          chars.delete(char)
+      if decision == "L"
+        loop do
+          puts "Pick a Letter"
+          char = gets.chomp
+          if no_vowel_allowed(char, player_score, vowels)
+            puts "You need more than $250 to pick a vowel"
+          elsif not_a_letter(char)
+            puts "Please type a letter a-z"
+          elsif unavailable_letter(chars, char)
+            puts "#{char} is already there"
+          elsif !letter_count(winning_phrase, char)
+            puts "There is no #{char} in this riddle"
+            break
+          else
+            letter_screen = update_game(game, winning_phrase, char)
+            player_score += pending_money
+            player_score -= 250 if vowels.include?(char)
+            character_count = letter_count(winning_phrase, char)
+            puts character_count
+            chars.delete(char)
+            break
+          end
+        end
+      elsif decision == "G"
+        puts "Guess this riddle"
+        answer = gets.chomp
+        if answer == winning_phrase
+          puts "Congrats you won!"
+          player_score = add_money_for_guess(player_score, computer_score)
           break
         end
       end
-    elsif decision == "G"
-      puts "Guess this riddle"
-      answer = gets.chomp
-      if answer == winning_phrase
-        puts "Congrats you won!"
-        player_score = add_money_for_guess(player_score, computer_score)
-        break
-      end
     end
-   end
+    break
+    # computer turn goes here
+    # computer picks any available letter
+  end
 end
