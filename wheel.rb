@@ -137,6 +137,7 @@ end
 # def computer_picks_letter(char, game)
 
 loop do
+  system 'clear'
   chars = ["a", "b", "c",
            "d", "e", "f",
            "g", "h", "i",
@@ -281,9 +282,9 @@ loop do
   end
 
   puts "Would you like to play again? (y/n)"
+  input = gets.chomp
 
   loop do
-    input = gets.chomp
     if input == "y" || input == "n"
       break
     else
