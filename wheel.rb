@@ -1,3 +1,5 @@
+require 'pry'
+
 def prompt(message)
   puts "=> #{message}"
 end
@@ -46,7 +48,7 @@ def display_hint(hint)
 end
 
 def not_a_letter(letter)
-  letter.to_i > 0 || letter.to_i == "0"
+  letter.to_i > 0 || letter.to_i == "0" || letter.length > 1
 end
 
 def unavailable_letter(chars, letter)
@@ -72,7 +74,7 @@ def update_game(game, winning_phrase, char)
 end
 
 def letter_count(winning_phrase, letter)
-  letter.downcase!
+  letter = letter.downcase
   count = winning_phrase.count(letter)
   if count < 1
     false
@@ -99,19 +101,40 @@ def add_money_for_guess(player, computer)
   end
 end
 
-def game_over?(game)
-  !game.value?("_ ")
+def game_over?(game, guess, winning_phrase)
+  !game.value?("_ ") || guess == winning_phrase
 end
 
 def valid_input?(decision)
   decision == "L" || decision == "G"
 end
 
+def correct_guess(guess, winning_phrase)
+  guess == winning_phrase
+end
+
 def print_spinning
+  puts
   puts "spinning."
   puts "spinning.."
   puts "spinning..."
 end
+
+def detect_winner(player, computer)
+  if player > computer
+    "player"
+  elsif computer > player
+    "computer"
+  else
+    "It was a tie"
+  end
+end
+
+def count_blanks(game)
+  game.values.count("_ ")
+end
+
+# def computer_picks_letter(char, game)
 
 loop do
   chars = ["a", "b", "c",
@@ -128,17 +151,16 @@ loop do
   computer_score = 0
   prompt "Welcome to Wheel of fortune"
   winning_phrase = RIDDLES.keys.sample
+  input = ''
+  guess = ''
   letter_screen = initialize_game(game, winning_phrase)
   hint = RIDDLES[winning_phrase]
 
   loop do
     loop do
+      char = ''
+      guess = ''
       p letter_screen
-      if game_over?(game)
-        prompt "Game Over"
-        puts
-        break
-      end
       display_hint(hint)
       pending_money = spin(spinner_values)
       puts "You have $#{player_score}"
@@ -154,6 +176,7 @@ loop do
         decision = ''
       end
       loop do
+        break if lose_a_turn?(pending_money) || bankrupt?(pending_money)
         decision = gets.chomp.upcase
         if valid_input?(decision)
           break
@@ -169,11 +192,11 @@ loop do
             puts "You need more than $250 to pick a vowel"
           elsif not_a_letter(char)
             puts "Please type a letter a-z"
-          elsif unavailable_letter(chars, char)
-            puts "#{char} is already there"
           elsif !letter_count(winning_phrase, char)
             puts "There is no #{char} in this riddle"
             break
+          elsif unavailable_letter(chars, char)
+            puts "#{char} is already there"
           else
             letter_screen = update_game(game, winning_phrase, char)
             player_score += pending_money
@@ -186,16 +209,88 @@ loop do
         end
       elsif decision == "G"
         puts "Guess this riddle"
-        answer = gets.chomp
-        if answer == winning_phrase
-          puts "Congrats you won!"
+        guess = gets.chomp
+
+        if correct_guess(guess, winning_phrase)
           player_score = add_money_for_guess(player_score, computer_score)
-          break
+        else
+          puts "Looks like you guessed wrong"
         end
       end
+      if !letter_count(winning_phrase, char) ||
+         game_over?(game, guess, winning_phrase) ||
+         correct_guess(guess, winning_phrase)
+        break
+      end
     end
-    break
-    # computer turn goes here
-    # computer picks any available letter
+    loop do
+      blanks = count_blanks(game)
+      if game_over?(game, guess, winning_phrase)
+        prompt "Game Over"
+        puts
+        break
+      end
+      print_spinning
+      pending_money = spin(spinner_values)
+      if bankrupt?(pending_money)
+        puts
+        puts "Computer bankrupted"
+        computer_score = 0
+        break
+      elsif lose_a_turn?(pending_money)
+        puts
+        puts "Computer lost a turn"
+        break
+      elsif blanks > 3
+        char = chars.delete(chars.sample)
+        puts "Computer has $#{computer_score}"
+        puts "Computer can win $#{pending_money}"
+      else
+        guess = winning_phrase
+        prompt "computer guessed the right phrase"
+        puts "The winning phrase is #{winning_phrase}"
+        computer_score = add_money_for_guess(computer_score, player_score)
+        break
+      end
+      if !letter_count(winning_phrase, char)
+        puts "Computer picked #{char}, there are no #{char}'s"
+        break
+      else
+        character_count = letter_count(winning_phrase, char)
+        computer_score += pending_money
+        puts character_count
+        letter_screen = update_game(game, winning_phrase, char)
+        next
+      end
+    end
+    break if game_over?(game, guess, winning_phrase)
   end
+  result = detect_winner(player_score, computer_score)
+  if result == "player"
+    puts "You have $#{player_score}"
+    puts "Computer has $#{computer_score}"
+    puts
+    puts "Congrats you won"
+  elsif result == "computer"
+    puts "Computer has $#{computer_score}"
+    puts "You have $#{player_score}"
+    puts
+    puts "Computer won"
+  else
+    puts "It's a tie"
+  end
+
+  puts "Would you like to play again? (y/n)"
+
+  loop do
+    input = gets.chomp
+    if input == "y" || input == "n"
+      break
+    else
+      puts "Please type y for yes or n for no"
+    end
+  end
+  break if input == "n"
 end
+
+puts "Thank you for playing, Goodbye!"

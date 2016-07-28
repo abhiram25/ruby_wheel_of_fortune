@@ -52,19 +52,26 @@
    	  ii. Player turn
 9. Ask to play again
 
+Once it becomes the computer's turn
 
-When it is computer's turn, we should break the player's loop
+Computer will keep picking a letter until it picks the wrong letter
+After
 
-When it is player's turn, we should break computer's loop
+When game is over ask to play again
 
-Initialize player_turn to be true and break unless computer_turn is false
-Initialize computer_turn to be false and it will break unless computer_turn is true
+If no, then break otherwise go again
 
+If there are more than 3 or more blanks in the game, then pick any letter other wise guess the right phrase.
 
+1. Create a method that counts the number values in the hash that is "_ "
+2. Write a conditional if blank is greater than 3, pick a letter or else guess
+3. Create a method that will pick a vowel if there is a _ between two constanants
+   or else pick a random letter
+4.
 
 Bonus features
 
 1. When we pick a letter and it happens to be in the index of 0, it needs to be capitalized
 
-  If letter is at index 0, capitalize
+
 
