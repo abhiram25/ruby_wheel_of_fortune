@@ -1,5 +1,3 @@
-require 'pry'
-
 def prompt(message)
   puts "=> #{message}"
 end
@@ -134,6 +132,27 @@ def count_blanks(game)
   game.values.count("_ ")
 end
 
+def display_winner(result, player, computer)
+  if result == "player"
+    puts "You have $#{player}"
+    puts "Computer has $#{computer}"
+    puts
+    puts "Congrats you won"
+  elsif result == "computer"
+    puts "You have $#{player}"
+    puts "Computer has $#{computer}"
+    puts
+    puts "Computer won"
+  else
+    puts "It's a tie"
+  end
+end
+
+def computer_turn(winning_phrase, char, game, guess)
+  !letter_count(winning_phrase, char) ||
+    game_over?(game, guess, winning_phrase) ||
+    correct_guess(guess, winning_phrase)
+end
 # def computer_picks_letter(char, game)
 
 loop do
@@ -173,7 +192,7 @@ loop do
         puts "Looks like you lost your turn"
         break
       else
-        puts "It's $#{pending_money}, type 'L' to pick a letter or 'G' to guess the winning phrase"
+        puts "It's $#{pending_money}, type 'L' to pick a letter or 'G' to guess the \ winning phrase"
         decision = ''
       end
       loop do
@@ -218,11 +237,8 @@ loop do
           puts "Looks like you guessed wrong"
         end
       end
-      if !letter_count(winning_phrase, char) ||
-         game_over?(game, guess, winning_phrase) ||
-         correct_guess(guess, winning_phrase)
-        break
-      end
+      binding.pry
+      break if computer_turn(winning_phrase, char, game, guess)
     end
     loop do
       blanks = count_blanks(game)
@@ -267,19 +283,7 @@ loop do
     break if game_over?(game, guess, winning_phrase)
   end
   result = detect_winner(player_score, computer_score)
-  if result == "player"
-    puts "You have $#{player_score}"
-    puts "Computer has $#{computer_score}"
-    puts
-    puts "Congrats you won"
-  elsif result == "computer"
-    puts "Computer has $#{computer_score}"
-    puts "You have $#{player_score}"
-    puts
-    puts "Computer won"
-  else
-    puts "It's a tie"
-  end
+  display_winner(result, player_score, computer_score)
 
   puts "Would you like to play again? (y/n)"
   input = gets.chomp
