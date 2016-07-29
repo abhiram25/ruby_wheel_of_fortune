@@ -18,7 +18,9 @@ spinner_values =
 
 RIDDLES = { "dances with wolves" => "Movie",
             "kill two birds with one stone" => "Idiom",
-            "ain't nuthin but a g thang" => "Song" }.freeze
+            "ain't nuthin but a g thang" => "Song",
+            "harry potter and the chamber of secrets" => "book",
+            "deadpool" => "superhero" }.freeze
 
 def no_vowel_allowed(char, money, vowels)
   vowels.include?(char) && money < 250
@@ -237,7 +239,6 @@ loop do
           puts "Looks like you guessed wrong"
         end
       end
-      binding.pry
       break if computer_turn(winning_phrase, char, game, guess)
     end
     loop do
@@ -277,6 +278,7 @@ loop do
         computer_score += pending_money
         puts character_count
         letter_screen = update_game(game, winning_phrase, char)
+        p letter_screen
         next
       end
     end
@@ -285,10 +287,9 @@ loop do
   result = detect_winner(player_score, computer_score)
   display_winner(result, player_score, computer_score)
 
-  puts "Would you like to play again? (y/n)"
-  input = gets.chomp
-
   loop do
+    puts "Would you like to play again? (y/n)"
+    input = gets.chomp
     if input == "y" || input == "n"
       break
     else

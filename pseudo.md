@@ -73,5 +73,7 @@ Bonus features
 
 1. When we pick a letter and it happens to be in the index of 0, it needs to be capitalized
 
+2. Computer AI
+
 
 
